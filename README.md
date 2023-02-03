@@ -93,7 +93,3 @@ branch 'readme_230203' set up to track 'origin/readme_230203'.
 * qemu and qemu-tools
 * ohmybash latest
 
-
-```
-ubuntu@ubuntu-jenkins:/voljenkins/test/github/fedora-env$ docker-compose run fedora-env
-```
