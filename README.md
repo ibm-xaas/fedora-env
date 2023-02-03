@@ -19,6 +19,9 @@ Please install the items below:
 ```
 $ export IBMCLOUD_API_KEY=<YOUR IBMCLOUD_API_KEY>
 $ docker-compose run fedora-env
+05:04:47 fedora@453ec9ff84a1 fedora-env ±|main|→ cat /etc/os-release | grep PRETTY_NAME
+PRETTY_NAME="Fedora Linux 38 (Container Image Prerelease)"
+05:04:54 fedora@453ec9ff84a1 fedora-env ±|main|→
 ```
 ## Available Tools
 * fedora (38) based
