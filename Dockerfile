@@ -1,33 +1,35 @@
 FROM fedora:38
 
-##ARG USERNAME=ubuntu
-##ARG USER_UID=1000
-##ARG USER_GID=1000
-##
-##RUN groupadd --gid $USER_GID $USERNAME && \
-##	useradd -s /bin/bash --uid $USER_UID --gid $USER_GID -m $USERNAME
-##
-##LABEL "maintainer"="SeungYeop Yang"
-##ENV WORKDIR=/dev-env
-##
+ARG USERNAME=fedora
+ARG USER_UID=1000
+ARG USER_GID=1000
+
+RUN groupadd --gid $USER_GID $USERNAME && \
+	useradd -s /bin/bash --uid $USER_UID --gid $USER_GID -m $USERNAME
+
+LABEL "maintainer"="SeungYeop Yang"
+ENV WORKDIR=/fedora-env
+WORKDIR $WORKDIR
+ENV TZ America/Central
+ENV LC_ALL "C.UTF-8"
+ENV LANG "en_US.UTF-8"
+
+RUN source /root/.bash_profile && echo $USERNAME ALL=\(root\) NOPASSWD:ALL > /etc/sudoers.d/$USERNAME && chmod 0440 /etc/sudoers.d/$USERNAME
+
+RUN set -ex dnf groupinstall -y @development-tools @development-libraries && \
+	dnf -y --setopt=tsflags=nodocs install git mercurial wget jq
+RUN set -ex && dnf -y --setopt=tsflags=nodocs install unzip iputils bind-utils qemu
+RUN set -ex && dnf -y --setopt=tsflags=nodocs install cloud-utils graphviz expect nmap traceroute
+RUN set -ex && dnf -y --setopt=tsflags=nodocs install pwgen tcpdump golang zlib-devel openssl openssl-devel python3-smart_open sqlite-devel libffi-devel bzip2-devel ncurses-devel readline-devel lzma-sdk-devel xz xz-libs xz-devel
+##		&& \
+##	dnf clean all
+USER $USERNAME
+ENV HOME "/home/${USERNAME}"
+
 ##ENV DEBIAN_FRONTEND noninteractive
-##ENV TZ America/Central
 ##RUN set -ex && \
 ##	apt-get update && \
 ##	apt-get install -y \
-##	software-properties-common \
-##	tzdata \
-##	git \
-##	mercurial \
-##	build-essential \
-##	libssl-dev \
-##	libbz2-dev \
-##	zlib1g-dev \
-##	libffi-dev \
-##	libreadline-dev \
-##	libsqlite3-dev \
-##	curl \
-##	sudo \
 ##	wget && \
 ##	curl -fsSL https://apt.releases.hashicorp.com/gpg -o hashicorp.gpg && \
 ##	sudo apt-key add hashicorp.gpg && \
@@ -39,22 +41,8 @@ FROM fedora:38
 ##	consul \
 ##	#consul-k8s \
 ##	vault \
-##	jq \
-##	vim \
-##	unzip \
-##	iputils-ping \
-##	dnsutils \
-##	qemu-utils \
-##	qemu \
-##	qemu-system \
-##	cloud-image-utils \
-##	graphviz \
-##	expect \
-##	nmap \
-##	traceroute \
 ##	shelltestrunner \
 ##	bats \
-##	pwgen \
 ##	tcpdump && \
 ##	apt-get upgrade -y \
 ##	e2fsprogs \
@@ -67,26 +55,14 @@ FROM fedora:38
 ##	chmod 0440 /etc/sudoers.d/$USERNAME
 ##
 ### set environmental variables
-##USER $USERNAME
-##ENV HOME "/home/${USERNAME}"
-##ENV LC_ALL "C.UTF-8"
-##ENV LANG "en_US.UTF-8"
 ##
-### # golang 1.18.3
-##RUN set -ex && \
-##	cd ${HOME} && \
-##	wget -q "https://dl.google.com/go/go1.18.3.linux-$(dpkg-architecture -q DEB_BUILD_ARCH).tar.gz" && \
-##	sudo tar -C /usr/local -xvzf "go1.18.3.linux-$(dpkg-architecture -q DEB_BUILD_ARCH).tar.gz" && \
-##	rm "go1.18.3.linux-$(dpkg-architecture -q DEB_BUILD_ARCH).tar.gz" && \
-##	mkdir -p ${HOME}/go && \
-##	sudo chown ${USER_UID}:${USER_GID} ${HOME}/go && \
-##	echo 'export PATH=/usr/local/go/bin:$PATH' >> ~/.bashrc
-##ENV PATH=$HOME/go/bin:/usr/local/go/bin:$PATH
-##
-### golangci-lint 1.44.0
-##RUN set -ex && \
-##	cd ${HOME} && \
-##	curl -sSfL https://raw.githubusercontent.com/golangci/golangci-lint/master/install.sh | sh -s -- -b $(go env GOPATH)/bin v1.44.0
+# golang latest
+RUN set -ex && \
+	cd ${HOME} && \
+	mkdir -p ${HOME}/go && \
+	sudo chown ${USER_UID}:${USER_GID} ${HOME}/go && \
+	echo 'export GOPATH=${HOME}/go' >> ~/.bashrc
+
 ##
 ### tfenv
 ##RUN set -ex && \
@@ -125,25 +101,27 @@ FROM fedora:38
 ##	sudo chmod +x /usr/local/bin/docker-compose && \
 ##	ibmcloud plugin install --all -f || echo "this line can fail."
 ##
-### pyenv
-##ENV PYENV_ROOT "${HOME}/.pyenv"
-##ENV PATH "${HOME}/.pyenv/shims:${HOME}/.pyenv/bin:${PATH}"
-##RUN echo 'eval "$(pyenv init -)"' >> ~/.bashrc
-##RUN echo 'eval "$(pyenv virtualenv-init -)"' >> ~/.bashrc
+# pyenv
+ENV PYENV_ROOT "${HOME}/.pyenv"
+ENV PATH "${HOME}/.pyenv/shims:${PYENV_ROOT}/bin:${PATH}"
+RUN echo "export PYENV_ROOT=${HOME}/.pyenv" >> ~/.bashrc
+RUN echo "export PATH=${HOME}/.pyenv/shims:${PYENV_ROOT}/bin:${PATH}" >> ~/.bashrc
+RUN echo 'eval "$(pyenv init -)"' >> ~/.bashrc
+RUN echo 'eval "$(pyenv virtualenv-init -)"' >> ~/.bashrc
 ###
 ### COPY requirements.txt ${HOME}/requirements.txt
 ###
-##RUN set -ex && \
-##	curl -L https://raw.githubusercontent.com/yyuu/pyenv-installer/master/bin/pyenv-installer | bash && \
-##	pyenv install 3.10.5 && \
-##	pyenv global 3.10.5 && \
-##	pip install --upgrade pip && \
-##	# Ansible
-##	pip install ansible && \
-##	pip install pipenv && \
-##	pip install pre-commit
-### pip install -r ${HOME}/requirements.txt && \
-### rm ${HOME}/requirements.txt && \
+RUN set -ex && \
+	curl -L https://raw.githubusercontent.com/yyuu/pyenv-installer/master/bin/pyenv-installer | bash && \
+	pyenv install 3.10.5 && \
+	pyenv global 3.10.5 && \
+	pip install --upgrade pip && \
+	##	# Ansible
+	pip install ansible && \
+	pip install pipenv && \
+	pip install pre-commit
+## pip install -r ${HOME}/requirements.txt && \
+## rm ${HOME}/requirements.txt && \
 ##
 ### install kubectl & helm v3
 ### kubectl was already installed probably from idt ks plugin
@@ -288,10 +266,7 @@ FROM fedora:38
 ##	cd ${HOME} && \
 ##	go install github.com/BurntSushi/toml/cmd/tomlv@latest
 ##
-### ohmybash
-##RUN set -ex && \
-##	cd ${HOME} && \
-##	bash -c "$(curl -fsSL https://raw.githubusercontent.com/ohmybash/oh-my-bash/master/tools/install.sh)"
-##
-##WORKDIR $WORKDIR
-##
+# ohmybash
+RUN set -ex && \
+	cd ${HOME} && \
+	bash -c "$(curl -fsSL https://raw.githubusercontent.com/ohmybash/oh-my-bash/master/tools/install.sh)"
