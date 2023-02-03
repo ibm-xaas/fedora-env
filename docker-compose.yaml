@@ -8,31 +8,17 @@
 #   docker-compose run dev-env
 version: "3.3"
 services:
-  dev-env:
+  fedora-env:
     privileged: true
     build:
       context: .
-    image: ghcr.io/ibm-xaas/dev-env:main
+    image: ghcr.io/ibm-xaas/fedora-env:main
     volumes:
       # For future ssh use in development
       - ~/.ssh:/home/ubuntu/.ssh:ro
-      - .:/dev-env
+      - .:/fedora-env
       - /var/run/docker.sock:/var/run/docker.sock
       - ~/.gitconfig:/home/ubuntu/.gitconfig:ro
     environment:
       IBMCLOUD_API_KEY: "$IBMCLOUD_API_KEY"
-    working_dir: /dev-env
-
-#  dev-env-workdir:
-#    privileged: true
-#    build:
-#      context: .
-#    image: ghcr.io/ibm-xaas/dev-env:latest
-#    volumes:
-#      # For future ssh use in development
-#      - ~/.ssh:/home/ubuntu/.ssh:ro
-#      - .:$WORKDIR
-#    environment:
-#      IBMCLOUD_API_KEY: "$IBMCLOUD_API_KEY"
-#    working_dir: $WORKDIR
-#
+    working_dir: /fedora-env
