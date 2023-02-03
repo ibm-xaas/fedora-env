@@ -25,7 +25,7 @@ $ docker-compose run fedora-env
 * python 3.10 or later and pyenv, then pipenv
 * ansible latest
 * qemu and qemu-tools
-* ohmybash latestß
+* ohmybash latest
 
 
 ```
