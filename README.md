@@ -92,3 +92,4 @@ branch 'readme_230203' set up to track 'origin/readme_230203'.
 * ansible latest
 * qemu and qemu-tools
 * ohmybash latest
+* docker in docker
