@@ -87,7 +87,7 @@ branch 'readme_230203' set up to track 'origin/readme_230203'.
 05:06:51 fedora@453ec9ff84a1 fedora-env ±|readme_230203|→
 ```
 ## Available Tools
-* fedora (38) based
+* fedora:latest based
 * python 3.10 or later and pyenv, then pipenv
 * ansible latest
 * qemu and qemu-tools
