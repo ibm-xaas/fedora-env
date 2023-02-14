@@ -88,8 +88,7 @@ branch 'readme_230203' set up to track 'origin/readme_230203'.
 ```
 ## Available Tools
 * fedora:latest based
-* python 3.10 or later and pyenv, then pipenv
-* ansible latest
-* qemu and qemu-tools
+* docker-ce and docker-compose
+* python 3.10.latest or later, ansible and pipenv
 * ohmybash latest
 * docker in docker
